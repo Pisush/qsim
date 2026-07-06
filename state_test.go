@@ -225,6 +225,27 @@ func TestMeasureAll(t *testing.T) {
 	wantAmps(t, s, wantState)
 }
 
+func TestAmplitudeAndFlipPhase(t *testing.T) {
+	s, err := NewState(2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s.ApplyGate(H, 0)
+	s.ApplyGate(H, 1) // uniform: all amplitudes 1/2
+	if got := s.Amplitude(3); !cEq(got, 0.5) {
+		t.Errorf("Amplitude(3) = %v, want 0.5", got)
+	}
+	s.FlipPhase(2)
+	wantAmps(t, s, []complex128{0.5, 0.5, -0.5, 0.5})
+	// FlipPhase must not change any measurement probability.
+	if p := s.Probability(1); !fEq(p, 0.5) {
+		t.Errorf("Probability(1) after FlipPhase = %v, want 0.5", p)
+	}
+	// Flipping twice restores the state.
+	s.FlipPhase(2)
+	wantAmps(t, s, []complex128{0.5, 0.5, 0.5, 0.5})
+}
+
 func TestQubitIndexPanics(t *testing.T) {
 	s, err := NewState(2)
 	if err != nil {
@@ -239,6 +260,8 @@ func TestQubitIndexPanics(t *testing.T) {
 		{"ApplyGate too large", func() { s.ApplyGate(X, 2) }},
 		{"Probability too large", func() { s.Probability(5) }},
 		{"Measure negative", func() { s.Measure(-3, rng) }},
+		{"Amplitude out of range", func() { s.Amplitude(4) }},
+		{"FlipPhase negative", func() { s.FlipPhase(-1) }},
 		{"Measure nil rng", func() { s.Measure(0, nil) }},
 		{"MeasureAll nil rng", func() { s.MeasureAll(nil) }},
 	}
