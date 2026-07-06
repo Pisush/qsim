@@ -152,7 +152,7 @@ func TestNormPreserved(t *testing.T) {
 	for i := 0; i < 200; i++ {
 		s.ApplyGate(gates[i%len(gates)], i%5)
 	}
-	if got := norm(s); math.Abs(got-1) > 1e-9 {
+	if got := norm(s); !fEq(got, 1) {
 		t.Errorf("norm after 200 gates = %v, want 1", got)
 	}
 }

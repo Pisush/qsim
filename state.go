@@ -41,8 +41,8 @@ type stateConfig struct {
 
 // WithQubitCap overrides the maximum number of qubits NewState accepts.
 // Use with care: memory doubles per qubit (2^n amplitudes of 16 bytes).
-func WithQubitCap(cap int) Option {
-	return func(c *stateConfig) { c.qubitCap = cap }
+func WithQubitCap(maxQubits int) Option {
+	return func(c *stateConfig) { c.qubitCap = maxQubits }
 }
 
 // NewState returns a new nQubits-qubit register initialized to |00...0>.
@@ -57,8 +57,8 @@ func NewState(nQubits int, opts ...Option) (*State, error) {
 		return nil, fmt.Errorf("qsim: number of qubits must be at least 1, got %d", nQubits)
 	}
 	if nQubits > cfg.qubitCap {
-		return nil, fmt.Errorf("qsim: %d qubits exceeds the cap of %d (2^%d amplitudes = %d MiB; raise the cap with WithQubitCap if you have the memory)",
-			nQubits, cfg.qubitCap, nQubits, (int64(16)<<uint(nQubits))>>20)
+		return nil, fmt.Errorf("qsim: %d qubits exceeds the cap of %d (a state vector needs 16*2^%d bytes; raise the cap with WithQubitCap if you have the memory)",
+			nQubits, cfg.qubitCap, nQubits)
 	}
 	amps := make([]complex128, 1<<uint(nQubits))
 	amps[0] = 1

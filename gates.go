@@ -12,7 +12,7 @@ import (
 //	a1' = g[1][0]*a0 + g[1][1]*a1
 type Gate [2][2]complex128
 
-var invSqrt2 = complex(1/math.Sqrt2, 0)
+const invSqrt2 = complex(1/math.Sqrt2, 0)
 
 // Predefined single-qubit gates.
 var (
