@@ -76,6 +76,31 @@ func (s *State) Amplitudes() []complex128 {
 	return out
 }
 
+// Amplitude returns the amplitude of the given computational basis state
+// (0 <= basisState < 2^n). It panics if basisState is out of range.
+func (s *State) Amplitude(basisState int) complex128 {
+	s.mustBasisState(basisState)
+	return s.amps[basisState]
+}
+
+// FlipPhase negates the amplitude of the given computational basis state.
+// This is the standard way to realize an oracle "marking" one element in
+// amplitude-amplification algorithms such as Grover's search: the marked
+// state picks up a -1 phase, all others are untouched. It panics if
+// basisState is out of range.
+func (s *State) FlipPhase(basisState int) {
+	s.mustBasisState(basisState)
+	s.amps[basisState] = -s.amps[basisState]
+}
+
+// mustBasisState panics if basisState is not a valid index into the
+// state vector.
+func (s *State) mustBasisState(basisState int) {
+	if basisState < 0 || basisState >= len(s.amps) {
+		panic(fmt.Sprintf("qsim: basis state %d out of range [0,%d)", basisState, len(s.amps)))
+	}
+}
+
 // mustQubit panics if qubit is not a valid index for this register.
 // An out-of-range qubit index is a programmer error, not a runtime
 // condition, so it panics rather than returning an error.
