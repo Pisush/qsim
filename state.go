@@ -86,9 +86,16 @@ func (s *State) mustQubit(qubit int) {
 }
 
 // ApplyGate applies the single-qubit gate g to the given qubit, updating
-// the state in place. It panics if qubit is out of range.
+// the state in place. For state vectors of at least 2^14 amplitudes the
+// work is split across runtime.NumCPU() goroutines; smaller states are
+// processed serially, where goroutine overhead would dominate. It panics
+// if qubit is out of range.
 func (s *State) ApplyGate(g Gate, qubit int) {
 	s.mustQubit(qubit)
+	if w := numWorkers(); len(s.amps) >= parallelThreshold && w > 1 {
+		applyGateParallel(s.amps, g, qubit, w)
+		return
+	}
 	applyGateSerial(s.amps, g, qubit)
 }
 

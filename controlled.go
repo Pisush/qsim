@@ -13,6 +13,10 @@ func (s *State) ApplyControlled(g Gate, control, target int) {
 	if control == target {
 		panic(fmt.Sprintf("qsim: control and target must differ, both are %d", control))
 	}
+	if w := numWorkers(); len(s.amps) >= parallelThreshold && w > 1 {
+		applyControlledParallel(s.amps, g, control, target, w)
+		return
+	}
 	applyControlledSerial(s.amps, g, control, target)
 }
 
