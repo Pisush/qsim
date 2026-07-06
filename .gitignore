@@ -1,0 +1,9 @@
+# Binaries
+/grover
+/qsim
+*.test
+*.out
+
+# IDE
+.idea/
+.vscode/
